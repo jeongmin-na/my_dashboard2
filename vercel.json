@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/api/teams/(.*)", "destination": "/api/teams?subpath=$1" }
+  ]
+}
+
