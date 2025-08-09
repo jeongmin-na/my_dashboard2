@@ -61,10 +61,21 @@ class handler(BaseHTTPRequestHandler):
             <body>
                 <h2>📊 리포트</h2>
                 <p>{message}</p>
+                <hr style="margin:20px 0;border:none;border-top:1px solid #eee" />
+                <div style="color:#666;font-size:12px;line-height:1.6">
+                  이 이메일은 Samsung AI Dashboard에서 자동으로 발송되었습니다.<br/>
+                  © 2025 Samsung AI Experience Group
+                </div>
             </body>
             </html>
             """
-            text_content = f"리포트\n\n{message}"
+            text_content = (
+                "리포트\n\n"
+                f"{message}\n\n"
+                "---\n"
+                "이 이메일은 Samsung AI Dashboard에서 자동으로 발송되었습니다.\n"
+                "© 2025 Samsung AI Experience Group"
+            )
 
             # 공통 첨부물 (XLSX) 생성: attachmentsSheets 형식 재사용
             attachments = []
