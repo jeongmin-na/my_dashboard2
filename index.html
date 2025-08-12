@@ -1994,30 +1994,115 @@
                             </div>
 
                             <!-- 수신자 그룹 -->
-                            <div class="setting-item">
-                                <div>
+                            <div class="setting-item" style="flex-direction: column; align-items: flex-start;">
+                                <div style="margin-bottom: 10px;">
                                     <div class="setting-label">수신자 그룹</div>
                                     <div class="setting-description">리포트를 받을 대상을 설정합니다</div>
                                 </div>
-                                <div style="display: flex; gap: 10px;">
-                                    <label style="display: flex; align-items: center; gap: 5px;">
-                                        <input type="checkbox" id="admin-checkbox" checked style="width: 16px; height: 16px;" onchange="updateRecipientCount()">
+                                <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                                    <label style="display: flex; align-items: center; gap: 6px;">
+                                        <input type="checkbox" id="admin-checkbox" style="width: 16px; height: 16px;" onchange="handleRecipientTargetToggle('admin', this); updateRecipientCount()">
                                         <span style="color: #e1e1e1; font-size: 14px;">관리자</span>
                                     </label>
-                                    <label style="display: flex; align-items: center; gap: 5px;">
-                                        <input type="checkbox" id="all-members-checkbox" style="width: 16px; height: 16px;" onchange="updateRecipientCount()">
+                                    <label style="display: flex; align-items: center; gap: 6px;">
+                                        <input type="checkbox" id="all-members-checkbox" style="width: 16px; height: 16px;" onchange="handleRecipientTargetToggle('all', this); updateRecipientCount()">
                                         <span style="color: #e1e1e1; font-size: 14px;">전체 멤버</span>
                                     </label>
-                                    <label style="display: flex; align-items: center; gap: 5px;">
-                                        <input type="checkbox" id="inactive-members-checkbox" style="width: 16px; height: 16px;" onchange="updateRecipientCount()">
+                                    <label style="display: flex; align-items: center; gap: 6px;">
+                                        <input type="checkbox" id="inactive-members-checkbox" style="width: 16px; height: 16px;" onchange="handleRecipientTargetToggle('inactive', this); updateRecipientCount()">
                                         <span style="color: #e1e1e1; font-size: 14px;">비활성 멤버</span>
                                     </label>
-                                    <label style="display: flex; align-items: center; gap: 5px;">
+                                    <label style="display: flex; align-items: center; gap: 6px;">
                                         <input type="checkbox" id="custom-email-checkbox" style="width: 16px; height: 16px;" onclick="toggleCustomEmailInput(this)" onchange="updateRecipientCount()">
                                         <span style="color: #e1e1e1; font-size: 14px;">직접 입력</span>
                                     </label>
                                 </div>
-                                
+
+                                <!-- 관리자 섹션 (이름/이메일만) -->
+                                <div id="recipient-admin-section" style="display: none; margin-top: 10px; width: 100%;">
+                                    <div class="setting-label" style="margin-bottom: 8px;">관리자</div>
+                                    <div style="display:flex; justify-content: space-between; align-items:center; gap:12px; margin-bottom:8px;">
+                                        <div style="position: relative; display:flex; align-items:center;">
+                                            <span style="position:absolute; left:10px; color:#7a7a7a;">🔍</span>
+                                            <input type="text" id="recipient-admin-search" class="search-box" placeholder="Search name, email..." style="padding-left: 30px; width: 260px;" oninput="filterRecipientList('admin', this.value)">
+                                        </div>
+                                        <div style="display:flex; gap:8px; align-items:center;">
+                                            <select id="recipient-admin-sort" class="setting-select" style="background-color: transparent; min-width: 160px;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="sortRecipientList('admin', this.value)">
+                                                <option value="name_asc" selected>이름 ↑</option>
+                                                <option value="name_desc">이름 ↓</option>
+                                                <option value="email_asc">이메일 ↑</option>
+                                                <option value="email_desc">이메일 ↓</option>
+                                            </select>
+                                            <select id="recipient-admin-page-size" class="setting-select" style="background-color: transparent; min-width: 100px;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="changeRecipientPageSize('admin', this.value)">
+                                                <option value="10">10</option>
+                                                <option value="20" selected>20</option>
+                                                <option value="50">50</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div id="recipient-admin-list" style="margin-bottom: 8px; background: #1a1a1a; border: 1px solid #3a3a3a; border-radius: 6px; padding: 12px; color: #e1e1e1;"></div>
+                                    <div id="recipient-admin-pagination" class="pagination-container" style="display:flex; justify-content: flex-end; gap:8px; align-items:center;"></div>
+                                    <div style="height:1px; background:#2a2a2a; margin: 16px 0 0 0;"></div>
+                                </div>
+
+                                <!-- 전체 멤버 섹션 (이름/이메일만) -->
+                                <div id="recipient-all-section" style="display: none; margin-top: 10px; width: 100%;">
+                                    <div class="setting-label" style="margin-bottom: 8px;">전체 멤버</div>
+                                    <div style="display:flex; justify-content: space-between; align-items:center; gap:12px; margin-bottom:8px;">
+                                        <div style="position: relative; display:flex; align-items:center;">
+                                            <span style="position:absolute; left:10px; color:#7a7a7a;">🔍</span>
+                                            <input type="text" id="recipient-all-search" class="search-box" placeholder="Search name, email..." style="padding-left: 30px; width: 260px;" oninput="filterRecipientList('all', this.value)">
+                                        </div>
+                                        <div style="display:flex; gap:8px; align-items:center;">
+                                            <select id="recipient-all-sort" class="setting-select" style="background-color: transparent; min-width: 160px;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="sortRecipientList('all', this.value)">
+                                                <option value="name_asc" selected>이름 ↑</option>
+                                                <option value="name_desc">이름 ↓</option>
+                                                <option value="email_asc">이메일 ↑</option>
+                                                <option value="email_desc">이메일 ↓</option>
+                                            </select>
+                                            <select id="recipient-all-page-size" class="setting-select" style="background-color: transparent; min-width: 100px;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="changeRecipientPageSize('all', this.value)">
+                                                <option value="10">10</option>
+                                                <option value="20" selected>20</option>
+                                                <option value="50">50</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div id="recipient-all-list" style="margin-bottom: 8px; background: #1a1a1a; border: 1px solid #3a3a3a; border-radius: 6px; padding: 12px; color: #e1e1e1;"></div>
+                                    <div id="recipient-all-pagination" class="pagination-container" style="display:flex; justify-content: flex-end; gap:8px; align-items:center;"></div>
+                                    <div style="height:1px; background:#2a2a2a; margin: 16px 0 0 0;"></div>
+                                </div>
+
+                                <!-- 비활성 멤버 섹션 (이름/이메일만) -->
+                                <div id="recipient-inactive-section" style="display: none; margin-top: 10px; width: 100%;">
+                                    <div class="setting-label" id="recipient-inactive-title" style="margin-bottom: 8px;">비활성 멤버</div>
+                                    <div style="display:flex; justify-content: space-between; align-items:center; gap:12px; margin-bottom:8px;">
+                                        <div style="position: relative; display:flex; align-items:center;">
+                                            <span style="position:absolute; left:10px; color:#7a7a7a;">🔍</span>
+                                            <input type="text" id="recipient-inactive-search" class="search-box" placeholder="Search name, email..." style="padding-left: 30px; width: 260px;" oninput="filterRecipientList('inactive', this.value)">
+                                        </div>
+                                        <div style="display:flex; gap:8px; align-items:center;">
+                                            <select id="recipient-inactive-sort" class="setting-select" style="background-color: transparent; min-width: 160px;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="sortRecipientList('inactive', this.value)">
+                                                <option value="name_asc" selected>이름 ↑</option>
+                                                <option value="name_desc">이름 ↓</option>
+                                                <option value="email_asc">이메일 ↑</option>
+                                                <option value="email_desc">이메일 ↓</option>
+                                            </select>
+                                            <select id="recipient-inactive-page-size" class="setting-select" style="background-color: transparent; min-width: 100px;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="changeRecipientPageSize('inactive', this.value)">
+                                                <option value="10">10</option>
+                                                <option value="20" selected>20</option>
+                                                <option value="50">50</option>
+                                            </select>
+                                            <select id="recipient-inactive-days" class="setting-select" style="background-color: transparent; min-width: 140px;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="setRecipientInactiveDays(this.value)">
+                                                <option value="7">최근 7일 무활동</option>
+                                                <option value="14" selected>최근 14일 무활동</option>
+                                                <option value="30">최근 30일 무활동</option>
+                                                <option value="60">최근 60일 무활동</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div id="recipient-inactive-list" style="margin-bottom: 8px; background: #1a1a1a; border: 1px solid #3a3a3a; border-radius: 6px; padding: 12px; color: #e1e1e1;"></div>
+                                    <div id="recipient-inactive-pagination" class="pagination-container" style="display:flex; justify-content: flex-end; gap:8px; align-items:center;"></div>
+                                </div>
                             </div>
                             
                             <!-- 직접 입력 영역 -->
@@ -6956,10 +7041,9 @@
 
 
 
-        // API 호출을 위한 설정
+        // API 호출을 위한 설정 (Vercel 서버리스 함수 사용)
         const API_CONFIG = {
             baseUrl: '/api',
-            apiKey: 'key_e46368ce482125bbd568b7d55090c657e30e4b73c824f522cbc9ef9b1bf3f0d3',
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -6980,7 +7064,7 @@
                 }
 
                 console.log(`실제 Cursor Admin API 호출: ${method} ${API_CONFIG.baseUrl}${endpoint}`, data);
-               
+
                 const response = await fetch(API_CONFIG.baseUrl + endpoint, options);
                
                 if (!response.ok) {
@@ -11066,6 +11150,368 @@
             updateRecipientCount();
         }
 
+        // 수신자 그룹 - 타겟 토글 처리 (관리자/전체/비활성)
+        function handleRecipientTargetToggle(target, checkbox) {
+            const adminSec = document.getElementById('recipient-admin-section');
+            const allSec = document.getElementById('recipient-all-section');
+            const inactiveSec = document.getElementById('recipient-inactive-section');
+            if (!adminSec || !allSec || !inactiveSec) return;
+
+            if (target === 'admin') {
+                adminSec.style.display = checkbox.checked ? '' : 'none';
+            } else if (target === 'all') {
+                allSec.style.display = checkbox.checked ? '' : 'none';
+            } else if (target === 'inactive') {
+                inactiveSec.style.display = checkbox.checked ? '' : 'none';
+            }
+
+            renderRecipientMemberLists();
+        }
+
+        // 수신자 리스트 렌더링 상태
+        function renderRecipientMemberLists() {
+            try {
+                const adminList = document.getElementById('recipient-admin-list');
+                const allList = document.getElementById('recipient-all-list');
+                const inactiveList = document.getElementById('recipient-inactive-list');
+                if (!adminList || !allList || !inactiveList) return;
+
+                const baseMembers = (originalMembersData && originalMembersData.length ? originalMembersData : currentMembersData) || [];
+                if (!baseMembers || baseMembers.length === 0) {
+                    const loading = '<div style="padding: 12px; text-align: center; color: #7a7a7a; background-color: #1a1a1a;">데이터를 불러오는 중...</div>';
+                    adminList.innerHTML = loading;
+                    allList.innerHTML = loading;
+                    inactiveList.innerHTML = loading;
+                    return;
+                }
+
+                // 상태 초기화
+                window.recipientAdminState = window.recipientAdminState || { page: 1, pageSize: 20, search: '', sort: 'name_asc' };
+                window.recipientAllState = window.recipientAllState || { page: 1, pageSize: 20, search: '', sort: 'name_asc' };
+                window.recipientInactiveState = window.recipientInactiveState || { page: 1, pageSize: 20, search: '', sort: 'name_asc', days: 14 };
+                window.recipientExclusions = window.recipientExclusions || { admin: new Set(), all: new Set(), inactive: new Set() };
+
+                // 비활성 계산(Overview와 동일 정의: requestsCosts > 0 활동)
+                const rawEventsNow = (typeof currentRawEventsData !== 'undefined' && Array.isArray(currentRawEventsData) ? currentRawEventsData : (window.currentRawEventsData || []));
+                const allowedEventsNow = rawEventsNow.filter(ev => ev && ev.userEmail && typeof ev.requestsCosts === 'number' && ev.requestsCosts > 0 && !isNaN(parseInt(ev.timestamp)));
+
+                function renderList(type) {
+                    const state = type === 'admin' ? window.recipientAdminState : type === 'all' ? window.recipientAllState : window.recipientInactiveState;
+                    let members = baseMembers;
+
+                    if (type === 'admin') {
+                        members = members.filter(m => m.role === 'owner');
+                    } else if (type === 'inactive') {
+                        const cutoff = Date.now() - (state.days * 24 * 60 * 60 * 1000);
+                        const activeEmails = new Set();
+                        for (const ev of allowedEventsNow) {
+                            const ts = parseInt(ev.timestamp);
+                            if (ts >= cutoff) activeEmails.add(ev.userEmail);
+                        }
+                        members = members.filter(m => m.email && !activeEmails.has(m.email));
+                        // 제목에 현재 비활성 수 표기
+                        try {
+                            const titleEl = document.getElementById('recipient-inactive-title');
+                            if (titleEl) titleEl.textContent = `비활성 멤버 (${members.length})`;
+                        } catch (_) {}
+                    }
+
+                    // 검색
+                    if (state.search && state.search.trim()) {
+                        const q = state.search.trim().toLowerCase();
+                        members = members.filter(m => (m.name || '').toLowerCase().includes(q) || (m.email || '').toLowerCase().includes(q));
+                    }
+
+                    // 정렬
+                    const [field, dir] = state.sort.split('_');
+                    members.sort((a, b) => {
+                        const av = field === 'email' ? (a.email || '') : (a.name || '');
+                        const bv = field === 'email' ? (b.email || '') : (b.name || '');
+                        return dir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+                    });
+
+                    // 페이지네이션
+                    const total = members.length;
+                    const totalPages = Math.max(1, Math.ceil(total / state.pageSize));
+                    if (state.page > totalPages) state.page = totalPages;
+                    const start = (state.page - 1) * state.pageSize;
+                    const end = Math.min(start + state.pageSize, members.length);
+                    const pageData = members.slice(start, end);
+
+                    const listEl = document.getElementById(
+                        type === 'admin' ? 'recipient-admin-list' : type === 'all' ? 'recipient-all-list' : 'recipient-inactive-list'
+                    );
+                    const exSet = (window.recipientExclusions && window.recipientExclusions[type]) ? window.recipientExclusions[type] : new Set();
+                    const headerHTML = `
+                        <div style="display:grid; grid-template-columns: 2fr 3fr 0.5fr; gap:12px; padding:8px 0; border-bottom:1px solid #3a3a3a; color:#e1e1e1;">
+                            <div>NAME</div><div>EMAIL</div><div></div>
+                        </div>`;
+                    const rowsHTML = pageData.map(m => {
+                        const email = m.email || '';
+                        const isExcluded = exSet.has(email);
+                        const escEmail = email.replace(/'/g, "\\'");
+                        const btnText = isExcluded ? '복원' : '×';
+                        return `
+                        <div style=\"display:grid; grid-template-columns: 2fr 3fr 0.5fr; gap:12px; padding:6px 0; border-bottom:1px solid #2a2a2a; ${isExcluded ? 'opacity:0.6;' : ''}\">\n                            <div style=\"color:#ff9800;\">${(m.name || email || 'Unnamed')}</div>\n                            <div style=\"color:#ff9800;\">${email}</div>\n                            <div style=\"display:flex; justify-content:flex-end;\"><button class=\"chart-btn\" style=\"padding:2px 8px;\" onclick=\"toggleRecipientExclusion('${type}','${escEmail}')\">${btnText}</button></div>\n                        </div>`;
+                    }).join('');
+                    listEl.innerHTML = headerHTML + (rowsHTML || '<div style="padding: 12px; text-align:center; color:#7a7a7a; background-color:#1a1a1a;">표시할 멤버가 없습니다.</div>');
+
+                    const pagEl = document.getElementById(
+                        type === 'admin' ? 'recipient-admin-pagination' : type === 'all' ? 'recipient-all-pagination' : 'recipient-inactive-pagination'
+                    );
+                    if (pagEl) pagEl.innerHTML = renderRecipientPagination(type, state.page, totalPages);
+                }
+
+                renderList('admin');
+                renderList('all');
+                renderList('inactive');
+                window._renderRecipientList = renderList;
+            } catch (e) {
+                console.error('수신자 리스트 렌더링 실패:', e);
+            }
+        }
+
+        function filterRecipientList(type, query) {
+            const state = type === 'admin' ? window.recipientAdminState : type === 'all' ? window.recipientAllState : window.recipientInactiveState;
+            state.search = query || '';
+            state.page = 1;
+            window._renderRecipientList && window._renderRecipientList(type);
+        }
+
+        function sortRecipientList(type, sortValue) {
+            const state = type === 'admin' ? window.recipientAdminState : type === 'all' ? window.recipientAllState : window.recipientInactiveState;
+            state.sort = sortValue;
+            window._renderRecipientList && window._renderRecipientList(type);
+        }
+
+        function changeRecipientPageSize(type, pageSize) {
+            const state = type === 'admin' ? window.recipientAdminState : type === 'all' ? window.recipientAllState : window.recipientInactiveState;
+            state.pageSize = parseInt(pageSize, 10) || 20;
+            state.page = 1;
+            window._renderRecipientList && window._renderRecipientList(type);
+        }
+
+        function changeRecipientPage(type, page) {
+            const state = type === 'admin' ? window.recipientAdminState : type === 'all' ? window.recipientAllState : window.recipientInactiveState;
+            state.page = Math.max(1, page);
+            window._renderRecipientList && window._renderRecipientList(type);
+        }
+
+        function renderRecipientPagination(type, current, total) {
+            const prev = Math.max(1, current - 1);
+            const next = Math.min(total, current + 1);
+            return `
+                <button class="page-btn" onclick="changeRecipientPage('${type}', 1)">First</button>
+                <button class="page-btn" onclick="changeRecipientPage('${type}', ${prev})">‹</button>
+                <span style="color:#b1b1b1; font-size: 12px;">${current} / ${total}</span>
+                <button class="page-btn" onclick="changeRecipientPage('${type}', ${next})">›</button>
+                <button class="page-btn" onclick="changeRecipientPage('${type}', ${total})">Last</button>
+            `;
+        }
+
+        function setRecipientInactiveDays(days) {
+            const state = window.recipientInactiveState || (window.recipientInactiveState = { page: 1, pageSize: 20, search: '', sort: 'name_asc', days: 14 });
+            state.days = parseInt(days, 10) || 14;
+            state.page = 1;
+            if (window._renderRecipientList) {
+                window._renderRecipientList('inactive');
+            } else {
+                try {
+                    renderRecipientMemberLists();
+                    setTimeout(() => { window._renderRecipientList && window._renderRecipientList('inactive'); }, 0);
+                } catch (e) { console.error('비활성 기간 변경 즉시 반영 실패:', e); }
+            }
+        }
+
+        function toggleRecipientExclusion(type, email) {
+            if (!email) return;
+            window.recipientExclusions = window.recipientExclusions || { admin: new Set(), all: new Set(), inactive: new Set() };
+            const set = window.recipientExclusions[type] || (window.recipientExclusions[type] = new Set());
+            if (set.has(email)) set.delete(email); else set.add(email);
+            window._renderRecipientList && window._renderRecipientList(type);
+            try { updateRecipientCount(); } catch(_) {}
+        }
+
+        // ===== 예약 수정 모달용 수신자 리스트 렌더링 =====
+        function handleEditRecipientToggle(target, checkbox) {
+            const root = document.getElementById('edit-schedule-modal');
+            if (!root) return;
+            const adminSec = root.querySelector('#edit-recipient-admin-section');
+            const allSec = root.querySelector('#edit-recipient-all-section');
+            const inactiveSec = root.querySelector('#edit-recipient-inactive-section');
+            if (!adminSec || !allSec || !inactiveSec) return;
+
+            if (target === 'admin') {
+                adminSec.style.display = checkbox.checked ? '' : 'none';
+            } else if (target === 'all') {
+                allSec.style.display = checkbox.checked ? '' : 'none';
+            } else if (target === 'inactive') {
+                inactiveSec.style.display = checkbox.checked ? '' : 'none';
+            }
+            renderEditRecipientMemberLists();
+        }
+
+        function renderEditRecipientMemberLists() {
+            try {
+                const root = document.getElementById('edit-schedule-modal');
+                if (!root) return;
+                const adminList = root.querySelector('#edit-recipient-admin-list');
+                const allList = root.querySelector('#edit-recipient-all-list');
+                const inactiveList = root.querySelector('#edit-recipient-inactive-list');
+                if (!adminList || !allList || !inactiveList) return;
+
+                const baseMembers = (originalMembersData && originalMembersData.length ? originalMembersData : currentMembersData) || [];
+                if (!baseMembers || baseMembers.length === 0) {
+                    const loading = '<div style="padding: 12px; text-align: center; color: #7a7a7a; background-color: #1a1a1a;">데이터를 불러오는 중...</div>';
+                    adminList.innerHTML = loading;
+                    allList.innerHTML = loading;
+                    inactiveList.innerHTML = loading;
+                    return;
+                }
+
+                window.editRecipientAdminState = window.editRecipientAdminState || { page: 1, pageSize: 20, search: '', sort: 'name_asc' };
+                window.editRecipientAllState = window.editRecipientAllState || { page: 1, pageSize: 20, search: '', sort: 'name_asc' };
+                window.editRecipientInactiveState = window.editRecipientInactiveState || { page: 1, pageSize: 20, search: '', sort: 'name_asc', days: 14 };
+
+                const rawEventsNow = (typeof currentRawEventsData !== 'undefined' && Array.isArray(currentRawEventsData) ? currentRawEventsData : (window.currentRawEventsData || []));
+                const allowedEventsNow = rawEventsNow.filter(ev => ev && ev.userEmail && typeof ev.requestsCosts === 'number' && ev.requestsCosts > 0 && !isNaN(parseInt(ev.timestamp)));
+
+                function renderList(type) {
+                    const state = type === 'admin' ? window.editRecipientAdminState : type === 'all' ? window.editRecipientAllState : window.editRecipientInactiveState;
+                    let members = baseMembers;
+
+                    if (type === 'admin') {
+                        members = members.filter(m => m.role === 'owner');
+                    } else if (type === 'inactive') {
+                        const cutoff = Date.now() - (state.days * 24 * 60 * 60 * 1000);
+                        const activeEmails = new Set();
+                        for (const ev of allowedEventsNow) {
+                            const ts = parseInt(ev.timestamp);
+                            if (ts >= cutoff) activeEmails.add(ev.userEmail);
+                        }
+                        members = members.filter(m => m.email && !activeEmails.has(m.email));
+                        try {
+                            const titleEl = root.querySelector('#edit-recipient-inactive-title');
+                            if (titleEl) titleEl.textContent = `비활성 멤버 (${members.length})`;
+                        } catch (_) {}
+                    }
+
+                    if (state.search && state.search.trim()) {
+                        const q = state.search.trim().toLowerCase();
+                        members = members.filter(m => (m.name || '').toLowerCase().includes(q) || (m.email || '').toLowerCase().includes(q));
+                    }
+
+                    const [field, dir] = state.sort.split('_');
+                    members.sort((a, b) => {
+                        const av = field === 'email' ? (a.email || '') : (a.name || '');
+                        const bv = field === 'email' ? (b.email || '') : (b.name || '');
+                        return dir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+                    });
+
+                    const total = members.length;
+                    const totalPages = Math.max(1, Math.ceil(total / state.pageSize));
+                    if (state.page > totalPages) state.page = totalPages;
+                    const start = (state.page - 1) * state.pageSize;
+                    const end = Math.min(start + state.pageSize, members.length);
+                    const pageData = members.slice(start, end);
+
+                    const listEl = root.querySelector(
+                        type === 'admin' ? '#edit-recipient-admin-list' : type === 'all' ? '#edit-recipient-all-list' : '#edit-recipient-inactive-list'
+                    );
+                    // 편집 모달 전용 제외 상태 초기화
+                    window.editRecipientExclusions = window.editRecipientExclusions || { admin: new Set(), all: new Set(), inactive: new Set() };
+                    const exSet = (window.editRecipientExclusions && window.editRecipientExclusions[type]) ? window.editRecipientExclusions[type] : new Set();
+                    const headerHTML = `
+                        <div style=\"display:grid; grid-template-columns: 2fr 3fr 0.5fr; gap:12px; padding:8px 0; border-bottom:1px solid #3a3a3a; color:#e1e1e1;\">
+                            <div>NAME</div><div>EMAIL</div><div></div>
+                        </div>`;
+                    const rowsHTML = pageData.map(m => {
+                        const email = m.email || '';
+                        const isExcluded = exSet.has(email);
+                        const escEmail = email.replace(/'/g, "\\'");
+                        const btnText = isExcluded ? '복원' : '×';
+                        return `
+                        <div style=\"display:grid; grid-template-columns: 2fr 3fr 0.5fr; gap:12px; padding:6px 0; border-bottom:1px solid #2a2a2a; ${isExcluded ? 'opacity:0.6;' : ''}\">\n                            <div style=\"color:#ff9800;\">${(m.name || email || 'Unnamed')}</div>\n                            <div style=\"color:#ff9800;\">${email}</div>\n                            <div style=\"display:flex; justify-content:flex-end;\"><button class=\"chart-btn\" style=\"padding:2px 8px;\" onclick=\"toggleEditRecipientExclusion('${type}','${escEmail}')\">${btnText}</button></div>\n                        </div>`;
+                    }).join('');
+                    listEl.innerHTML = headerHTML + (rowsHTML || '<div style=\"padding: 12px; text-align:center; color:#7a7a7a; background-color:#1a1a1a;\">표시할 멤버가 없습니다.</div>');
+
+                    const pagEl = root.querySelector(
+                        type === 'admin' ? '#edit-recipient-admin-pagination' : type === 'all' ? '#edit-recipient-all-pagination' : '#edit-recipient-inactive-pagination'
+                    );
+                    if (pagEl) pagEl.innerHTML = renderEditRecipientPagination(type, state.page, totalPages);
+                }
+
+                renderList('admin');
+                renderList('all');
+                renderList('inactive');
+                window._renderEditRecipientList = renderList;
+            } catch (e) {
+                console.error('수정 모달 수신자 리스트 렌더링 실패:', e);
+            }
+        }
+
+        function filterEditRecipientList(type, query) {
+            const state = type === 'admin' ? window.editRecipientAdminState : type === 'all' ? window.editRecipientAllState : window.editRecipientInactiveState;
+            state.search = query || '';
+            state.page = 1;
+            window._renderEditRecipientList && window._renderEditRecipientList(type);
+        }
+
+        function sortEditRecipientList(type, sortValue) {
+            const state = type === 'admin' ? window.editRecipientAdminState : type === 'all' ? window.editRecipientAllState : window.editRecipientInactiveState;
+            state.sort = sortValue;
+            window._renderEditRecipientList && window._renderEditRecipientList(type);
+        }
+
+        function changeEditRecipientPageSize(type, pageSize) {
+            const state = type === 'admin' ? window.editRecipientAdminState : type === 'all' ? window.editRecipientAllState : window.editRecipientInactiveState;
+            state.pageSize = parseInt(pageSize, 10) || 20;
+            state.page = 1;
+            window._renderEditRecipientList && window._renderEditRecipientList(type);
+        }
+
+        function changeEditRecipientPage(type, page) {
+            const state = type === 'admin' ? window.editRecipientAdminState : type === 'all' ? window.editRecipientAllState : window.editRecipientInactiveState;
+            state.page = Math.max(1, page);
+            window._renderEditRecipientList && window._renderEditRecipientList(type);
+        }
+
+        function renderEditRecipientPagination(type, current, total) {
+            const prev = Math.max(1, current - 1);
+            const next = Math.min(total, current + 1);
+            return `
+                <button class="page-btn" onclick="changeEditRecipientPage('${type}', 1)">First</button>
+                <button class="page-btn" onclick="changeEditRecipientPage('${type}', ${prev})">‹</button>
+                <span style="color:#b1b1b1; font-size: 12px;">${current} / ${total}</span>
+                <button class="page-btn" onclick="changeEditRecipientPage('${type}', ${next})">›</button>
+                <button class="page-btn" onclick="changeEditRecipientPage('${type}', ${total})">Last</button>
+            `;
+        }
+
+        function setEditRecipientInactiveDays(days) {
+            const state = window.editRecipientInactiveState || (window.editRecipientInactiveState = { page: 1, pageSize: 20, search: '', sort: 'name_asc', days: 14 });
+            state.days = parseInt(days, 10) || 14;
+            state.page = 1;
+            if (window._renderEditRecipientList) {
+                window._renderEditRecipientList('inactive');
+            } else {
+                try {
+                    renderEditRecipientMemberLists();
+                    setTimeout(() => { window._renderEditRecipientList && window._renderEditRecipientList('inactive'); }, 0);
+                } catch (e) { console.error('비활성 기간 변경 즉시 반영 실패:', e); }
+            }
+        }
+
+        // 편집 모달 - 개별 멤버 제외/복원 토글
+        function toggleEditRecipientExclusion(type, email) {
+            if (!email) return;
+            window.editRecipientExclusions = window.editRecipientExclusions || { admin: new Set(), all: new Set(), inactive: new Set() };
+            const set = window.editRecipientExclusions[type] || (window.editRecipientExclusions[type] = new Set());
+            if (set.has(email)) set.delete(email); else set.add(email);
+            window._renderEditRecipientList && window._renderEditRecipientList(type);
+        }
+
+
         // 수신자 수 계산 및 업데이트 함수
         function updateRecipientCount() {
             let totalCount = 0;
@@ -12369,7 +12815,7 @@
             // 간단한 수정 모달: 제목, 메시지, 주기(셀렉트), 시간(시간 선택), 수신자 문자열
             const html = `
                 <div id="edit-schedule-modal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1100;">
-                    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:90%; max-width:720px; background:#2a2a2a; border:1px solid #3a3a3a; border-radius:8px; padding:20px;">
+                    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:90%; max-width:720px; background:#2a2a2a; border:1px solid #3a3a3a; border-radius:8px; padding:20px; max-height:85vh; overflow-y:auto;">
                         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #3a3a3a; padding-bottom:12px; margin-bottom:16px;">
                             <div style="color:#fff; font-size:18px; font-weight:600;">예약 수정</div>
                             <button style="background:none; border:none; color:#7a7a7a; font-size:18px; cursor:pointer;" onclick="document.getElementById('edit-schedule-modal').remove()">×</button>
@@ -12392,21 +12838,104 @@
                             <div style="color:#e1e1e1; font-size:14px;">수신자 그룹</div>
                             <div style="display:flex; gap:10px; flex-wrap: wrap; align-items:center;">
                                 <label style="display:flex; align-items:center; gap:6px;">
-                                    <input type="checkbox" id="edit-admin-checkbox" ${((schedule.recipients||'').includes('관리자')) ? 'checked' : ''} style="width:16px; height:16px;">
+                                    <input type="checkbox" id="edit-admin-checkbox" ${((schedule.recipients||'').includes('관리자')) ? 'checked' : ''} style="width:16px; height:16px;" onchange="handleEditRecipientToggle('admin', this)">
                                     <span style="color:#e1e1e1; font-size:14px;">관리자</span>
                                 </label>
                                 <label style="display:flex; align-items:center; gap:6px;">
-                                    <input type="checkbox" id="edit-all-members-checkbox" ${((schedule.recipients||'').includes('전체 멤버')) ? 'checked' : ''} style="width:16px; height:16px;">
+                                    <input type="checkbox" id="edit-all-members-checkbox" ${((schedule.recipients||'').includes('전체 멤버')) ? 'checked' : ''} style="width:16px; height:16px;" onchange="handleEditRecipientToggle('all', this)">
                                     <span style="color:#e1e1e1; font-size:14px;">전체 멤버</span>
                                 </label>
                                 <label style="display:flex; align-items:center; gap:6px;">
-                                    <input type="checkbox" id="edit-inactive-members-checkbox" ${((schedule.recipients||'').includes('비활성 멤버')) ? 'checked' : ''} style="width:16px; height:16px;">
+                                    <input type="checkbox" id="edit-inactive-members-checkbox" ${((schedule.recipients||'').includes('비활성 멤버')) ? 'checked' : ''} style="width:16px; height:16px;" onchange="handleEditRecipientToggle('inactive', this)">
                                     <span style="color:#e1e1e1; font-size:14px;">비활성 멤버</span>
                                 </label>
                                 <label style="display:flex; align-items:center; gap:6px;">
                                     <input type="checkbox" id="edit-custom-email-checkbox" ${((Array.isArray(schedule.customEmails) && schedule.customEmails.length>0) || (schedule.recipients||'').includes('직접입력')) ? 'checked' : ''} onclick="(function(){var c=document.getElementById('edit-custom-email-container'); if(c){ c.style.display = document.getElementById('edit-custom-email-checkbox').checked ? 'block' : 'none'; } })()" style="width:16px; height:16px;">
                                     <span style="color:#e1e1e1; font-size:14px;">직접 입력</span>
                                 </label>
+                            </div>
+                            <!-- 관리자 섹션 -->
+                            <div id="edit-recipient-admin-section" style="display: ${((schedule.recipients||'').includes('관리자')) ? '' : 'none'}; margin-top: 10px; width: 100%;">
+                                <div class="setting-label" style="margin-bottom: 8px;">관리자</div>
+                                <div style="display:flex; justify-content: space-between; align-items:center; gap:12px; margin-bottom:8px;">
+                                    <div style="position: relative; display:flex; align-items:center;">
+                                        <span style="position:absolute; left:10px; color:#7a7a7a;">🔍</span>
+                                        <input type="text" id="edit-recipient-admin-search" class="search-box" placeholder="Search name, email..." style="padding-left: 30px; width: 260px;" oninput="filterEditRecipientList('admin', this.value)">
+                                    </div>
+                                    <div style="display:flex; gap:8px; align-items:center;">
+                                        <select id="edit-recipient-admin-sort" class="setting-select" style="background-color: transparent; min-width: 160px;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="sortEditRecipientList('admin', this.value)">
+                                            <option value="name_asc" selected>이름 ↑</option>
+                                            <option value="name_desc">이름 ↓</option>
+                                            <option value="email_asc">이메일 ↑</option>
+                                            <option value="email_desc">이메일 ↓</option>
+                                        </select>
+                                        <select id="edit-recipient-admin-page-size" class="setting-select" style="background-color: transparent; min-width: 100px;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="changeEditRecipientPageSize('admin', this.value)">
+                                            <option value="10">10</option>
+                                            <option value="20" selected>20</option>
+                                            <option value="50">50</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="edit-recipient-admin-list" style="margin-bottom: 8px; background: #1a1a1a; border: 1px solid #3a3a3a; border-radius: 6px; padding: 12px; color: #e1e1e1;"></div>
+                                <div id="edit-recipient-admin-pagination" class="pagination-container" style="display:flex; justify-content: flex-end; gap:8px; align-items:center;"></div>
+                                <div style="height:1px; background:#2a2a2a; margin: 16px 0 0 0;"></div>
+                            </div>
+                            <!-- 전체 멤버 섹션 -->
+                            <div id="edit-recipient-all-section" style="display: ${((schedule.recipients||'').includes('전체 멤버')) ? '' : 'none'}; margin-top: 10px; width: 100%;">
+                                <div class="setting-label" style="margin-bottom: 8px;">전체 멤버</div>
+                                <div style="display:flex; justify-content: space-between; align-items:center; gap:12px; margin-bottom:8px;">
+                                    <div style="position: relative; display:flex; align-items:center;">
+                                        <span style="position:absolute; left:10px; color:#7a7a7a;">🔍</span>
+                                        <input type="text" id="edit-recipient-all-search" class="search-box" placeholder="Search name, email..." style="padding-left: 30px; width: 260px;" oninput="filterEditRecipientList('all', this.value)">
+                                    </div>
+                                    <div style="display:flex; gap:8px; align-items:center;">
+                                        <select id="edit-recipient-all-sort" class="setting-select" style="background-color: transparent; min-width: 160px;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="sortEditRecipientList('all', this.value)">
+                                            <option value="name_asc" selected>이름 ↑</option>
+                                            <option value="name_desc">이름 ↓</option>
+                                            <option value="email_asc">이메일 ↑</option>
+                                            <option value="email_desc">이메일 ↓</option>
+                                        </select>
+                                        <select id="edit-recipient-all-page-size" class="setting-select" style="background-color: transparent; min-width: 100px;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="changeEditRecipientPageSize('all', this.value)">
+                                            <option value="10">10</option>
+                                            <option value="20" selected>20</option>
+                                            <option value="50">50</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="edit-recipient-all-list" style="margin-bottom: 8px; background: #1a1a1a; border: 1px solid #3a3a3a; border-radius: 6px; padding: 12px; color: #e1e1e1;"></div>
+                                <div id="edit-recipient-all-pagination" class="pagination-container" style="display:flex; justify-content: flex-end; gap:8px; align-items:center;"></div>
+                                <div style="height:1px; background:#2a2a2a; margin: 16px 0 0 0;"></div>
+                            </div>
+                            <!-- 비활성 멤버 섹션 -->
+                            <div id="edit-recipient-inactive-section" style="display: ${((schedule.recipients||'').includes('비활성 멤버')) ? '' : 'none'}; margin-top: 10px; width: 100%;">
+                                <div class="setting-label" id="edit-recipient-inactive-title" style="margin-bottom: 8px;">비활성 멤버</div>
+                                <div style="display:flex; justify-content: space-between; align-items:center; gap:12px; margin-bottom:8px;">
+                                    <div style="position: relative; display:flex; align-items:center;">
+                                        <span style="position:absolute; left:10px; color:#7a7a7a;">🔍</span>
+                                        <input type="text" id="edit-recipient-inactive-search" class="search-box" placeholder="Search name, email..." style="padding-left: 30px; width: 260px;" oninput="filterEditRecipientList('inactive', this.value)">
+                                    </div>
+                                    <div style="display:flex; gap:8px; align-items:center;">
+                                        <select id="edit-recipient-inactive-sort" class="setting-select" style="background-color: transparent; min-width: 160px;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="sortEditRecipientList('inactive', this.value)">
+                                            <option value="name_asc" selected>이름 ↑</option>
+                                            <option value="name_desc">이름 ↓</option>
+                                            <option value="email_asc">이메일 ↑</option>
+                                            <option value="email_desc">이메일 ↓</option>
+                                        </select>
+                                        <select id="edit-recipient-inactive-page-size" class="setting-select" style="background-color: transparent; min-width: 100px;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="changeEditRecipientPageSize('inactive', this.value)">
+                                            <option value="10">10</option>
+                                            <option value="20" selected>20</option>
+                                            <option value="50">50</option>
+                                        </select>
+                                        <select id="edit-recipient-inactive-days" class="setting-select" style="background-color: transparent; min-width: 140px;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="setEditRecipientInactiveDays(this.value)">
+                                            <option value="7">최근 7일 무활동</option>
+                                            <option value="14" selected>최근 14일 무활동</option>
+                                            <option value="30">최근 30일 무활동</option>
+                                            <option value="60">최근 60일 무활동</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="edit-recipient-inactive-list" style="margin-bottom: 8px; background: #1a1a1a; border: 1px solid #3a3a3a; border-radius: 6px; padding: 12px; color: #e1e1e1;"></div>
+                                <div id="edit-recipient-inactive-pagination" class="pagination-container" style="display:flex; justify-content: flex-end; gap:8px; align-items:center;"></div>
                             </div>
                             <div id="edit-custom-email-container" style="display: ${(Array.isArray(schedule.customEmails) && schedule.customEmails.length>0) ? 'block' : 'none'}; margin-top:8px;">
                                 <textarea id="edit-custom-emails" placeholder="email을 직접 입력 하세요.(example1@samsung.com, example2@samsung.com)" style="width: 100%; height: 100px; padding: 10px 12px; background-color: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 4px; color: #ff9800; font-size: 14px; outline: none; resize: vertical; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">${Array.isArray(schedule.customEmails) ? schedule.customEmails.join(', ') : ''}</textarea>
@@ -12487,6 +13016,8 @@
                 </div>
             `;
             document.body.insertAdjacentHTML('beforeend', html);
+            // 초기 수신자 리스트 렌더링 (체크 상태 반영)
+            try { renderEditRecipientMemberLists(); } catch(_) {}
         }
 
         // 미리보기 행의 본문(메시지) 클릭 시 전체 보기 + 수정 모달
@@ -15438,9 +15969,10 @@
                         }
                     }
 
-                    // 첨부 리스트 초기 렌더링
+                    // 첨부 리스트/수신자 리스트 초기 렌더링
                     setTimeout(() => {
                         renderAttachmentMemberLists();
+                        renderRecipientMemberLists();
                         // Export 범위 초기 표시 상태 동기화
                         // Export 종류 초기 상태: 모두 미선택
                         ['export-type-summary','export-type-raw','export-type-members','export-type-all'].forEach(id => {
